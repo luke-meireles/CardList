@@ -1,1 +1,1 @@
-As Screenshots do app estão na pasta screenshots.
+As Screenshots pedidas do app estão na pasta screenshots.
