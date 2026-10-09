@@ -1,47 +1,73 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TextInput,
+  TouchableOpacity,
   FlatList,
   StyleSheet,
-  TouchableOpacity,
 } from 'react-native';
+import { ItemCompra } from './ItemCompra';
 
 export default function App() {
-  const [texto, setTexto] = useState('');
+  const [nome, setNome] = useState('');
+  const [quantidade, setQuantidade] = useState('');
   const [itens, setItens] = useState([]);
 
-  function adicionarItem() {
-    const nome = texto.trim();
-    if (nome === '') return;
+  // Aula 8: roda toda vez que a lista (itens) muda
+  useEffect(() => {
+    console.log('A lista mudou. Total de itens:', itens.length);
+  }, [itens]);
 
-    const novoItem = { id: Date.now().toString(), nome };
-    setItens([...itens, novoItem]);
-    setTexto('');
+  function adicionarItem() {
+    const nomeLimpo = nome.trim();
+    if (nomeLimpo === '') return; // não adiciona item vazio
+
+    const novoItem = {
+      id: Date.now().toString(),
+      nome: nomeLimpo,
+      quantidade: quantidade.trim() === '' ? '1' : quantidade.trim(),
+    };
+
+    setItens([...itens, novoItem]); // spread, sem .push()
+    setNome('');
+    setQuantidade('');
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>CardList</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Adicionar a lista..."
-        value={texto}
-        onChangeText={setTexto}
-      />
+      {/* Flexbox em linha (Aula 4): campo, quantidade e botão lado a lado */}
+      <View style={styles.linha}>
+        <TextInput
+          style={[styles.input, styles.inputNome]}
+          placeholder="Adicionar a lista..."
+          value={nome}
+          onChangeText={setNome}
+        />
+        <TextInput
+          style={[styles.input, styles.inputQuantidade]}
+          placeholder="Qtd"
+          value={quantidade}
+          onChangeText={setQuantidade}
+          keyboardType="numeric"
+        />
+      </View>
 
       <TouchableOpacity style={styles.botao} onPress={adicionarItem}>
         <Text style={styles.textoBotao}>Adicionar</Text>
       </TouchableOpacity>
 
+      <Text style={styles.total}>
+        Total: {itens.length} {itens.length === 1 ? 'item' : 'itens'}
+      </Text>
+
       <FlatList
-        style={styles.lista}
         data={itens}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Text style={styles.item}>{item.nome}</Text>
+          <ItemCompra nome={item.nome} quantidade={item.quantidade} />
         )}
       />
     </View>
@@ -49,37 +75,48 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, marginTop: 40, backgroundColor: '#fff' },
+  container: {
+    flex: 1,
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: 20,
+    paddingTop: 50,
+    backgroundColor: '#faf6f1',
+  },
   titulo: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: '#5c4430',
     textAlign: 'center',
-    color: '#57422a',
+    marginBottom: 16,
+  },
+  linha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    width: '100%',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#cfc4b8',
     borderRadius: 8,
     padding: 10,
-    marginBottom: 10,
+    backgroundColor: '#fff',
   },
-  lista: { marginTop: 16 },
-  item: {
-    fontSize: 16,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
+  inputNome: { flex: 1, minWidth: 0, marginRight: 8 },
+  inputQuantidade: { width: 70, flexShrink: 0, textAlign: 'center' },
   botao: {
-    backgroundColor: '#57422a',
+    backgroundColor: '#5c4430',
+    width: '100%',
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
+    marginBottom: 12,
   },
-  textoBotao: {
-    color: '#ddd',
-    fontSize: 16,
-    fontWeight: 'bold',
+  textoBotao: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  total: {
+    fontSize: 14,
+    color: '#7a6a5b',
+    marginBottom: 10,
   },
 });
